@@ -674,7 +674,7 @@ init(Handle<Object> target)
   target->Set(String::New("TRIANGLE_STRIP"), Number::New(GL_TRIANGLE_STRIP));
   
   
-  v8_typed_array::AttachBindings(target);
+  v8_typed_array::AttachBindings(Context::GetCurrent()->Global());
    
   
 }
