@@ -11,15 +11,32 @@ namespace webgl {
 
 
 
-//void glUniformMatrix4fv(	GLint  	location,
-// 	GLsizei  	count,
-// 	GLboolean  	transpose,
-// 	const GLfloat * 	value);
+  Handle<Value> BindAttribLocation(const Arguments& args) {
+    HandleScope scope;
+
+    if (!(args.Length() == 3 && args[0]->IsNumber() && args[1]->IsNumber() && args[2]->IsString())) {
+      return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected BindAttribLocation(Number, Number, String)")));
+    }
+
+    int program = args[0]->Int32Value();
+    int index = args[1]->Int32Value();
+    String::Utf8Value name(args[2]);
+
+    glBindAttribLocation(program, index, *name);
+
+    return Undefined();
+  }
 
 
-//(WebGLUniformLocation location, GLboolean transpose, 
-//                          Float32Array value);
+  Handle<Value> GetError(const Arguments& args) {
+    HandleScope scope;
 
+    if (!(args.Length() == 0)) {
+      return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected GetError()")));
+    }
+
+    return Number::New(glGetError());
+  }
 
 
   Handle<Value> DrawArrays(const Arguments& args) {
@@ -28,14 +45,13 @@ namespace webgl {
     if (!(args.Length() == 3 && args[0]->IsNumber() && args[1]->IsNumber() && args[2]->IsNumber())) {
       return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected DrawArrays(Number, Number, Number)")));
     }
-    
-    
+
     int mode = args[0]->Int32Value();
     int first = args[1]->Int32Value();
     int count = args[2]->Int32Value();
-    
+
     glDrawArrays(mode, first, count);
-    
+
     return Undefined();
   }
 
@@ -45,24 +61,32 @@ namespace webgl {
     if (!(args.Length() == 3 && args[0]->IsNumber() && args[1]->IsBoolean() && args[2]->IsObject())) {
       return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected UniformMatrix(Number, Boolean, Object)")));
     }
-    
-    int location = args[0]->Int32Value();
-    bool transpose = args[1]->BooleanValue();
+
+
+    GLint location = args[0]->Int32Value();
+    GLboolean transpose = args[1]->BooleanValue();
     Local<Object> value = Local<Object>::Cast(args[2]);
 
     if (!value->HasIndexedPropertiesInExternalArrayData()) {
       return ThrowException(Exception::TypeError(String::New("Data must be an ArrayBuffer.")));
     }
-    int count = value->GetIndexedPropertiesExternalArrayDataLength();
+    GLsizei count = value->GetIndexedPropertiesExternalArrayDataLength();
 
-    if (count < 4) {
+    if (count < 16) {
       return ThrowException(Exception::TypeError(String::New("Not enough data for UniformMatrix4fv")));
     }
 
-    void* data = value->GetIndexedPropertiesExternalArrayData();
-    
-    glUniformMatrix4fv(location, count, transpose, (const GLfloat*)data);
-    
+    const GLfloat* data = (const GLfloat*)value->GetIndexedPropertiesExternalArrayData();
+
+//    printf("count=%d\n", count);
+//    printf("[%f, %f, %f, %f,\n", data[0], data[1], data[2], data[3]);
+//    printf(" %f, %f, %f, %f,\n", data[4], data[5], data[6], data[7]);
+//    printf(" %f, %f, %f, %f,\n", data[8], data[9], data[10], data[11]);
+//    printf(" %f, %f, %f, %f]\n", data[12], data[13], data[14], data[15]);
+
+
+    glUniformMatrix4fv(location, count / 16, transpose, data);
+
     return Undefined();
   }
 
@@ -74,10 +98,10 @@ namespace webgl {
     if (!(args.Length() == 2 && args[0]->IsNumber() && args[1]->IsString())) {
       return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected GetAttribLocation(Number, String)")));
     }
-    
+
     int program = args[0]->Int32Value();
     String::Utf8Value name(args[1]);
-    
+
     return Number::New(glGetAttribLocation(program, *name));
   }
 
@@ -90,8 +114,8 @@ namespace webgl {
     }
 
     glDepthFunc(args[0]->Int32Value());
-    
-    return Undefined();    
+
+    return Undefined();
   }
 
 
@@ -101,19 +125,19 @@ namespace webgl {
     if (!(args.Length() == 4 && args[0]->IsNumber() && args[1]->IsNumber() && args[2]->IsNumber() && args[3]->IsNumber())) {
       return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected Viewport(Number, Number, Number, Number)")));
     }
-    
+
     int x = args[0]->Int32Value();
     int y = args[1]->Int32Value();
     int width = args[2]->Int32Value();
     int height = args[3]->Int32Value();
-    
+
     glViewport(x, y, width, height);
-    
+
     return Undefined();
 
     return Number::New(glCreateShader(args[0]->Int32Value()));
   }
-  
+
   Handle<Value> CreateShader(const Arguments& args) {
     HandleScope scope;
 
@@ -139,7 +163,7 @@ namespace webgl {
     codes[0] = *code;
 
     glShaderSource  (id, 1, codes, NULL);
-    
+
     return Undefined();
   }
 
@@ -150,10 +174,10 @@ namespace webgl {
     if (!(args.Length() == 1 && args[0]->IsNumber())) {
       return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected CompileShader(Number)")));
     }
-    
-    
+
+
     glCompileShader(args[0]->Int32Value());
-    
+
     return Undefined();
   }
 
@@ -207,7 +231,7 @@ namespace webgl {
     if (!(args.Length() == 0)) {
       return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected CreateProgram()")));
     }
-    
+
     return Number::New(glCreateProgram());
   }
 
@@ -218,24 +242,13 @@ namespace webgl {
     if (!(args.Length() == 2 && args[0]->IsNumber() && args[1]->IsNumber())) {
       return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected AttachShader(Number, Number)")));
     }
-    
+
     int program = args[0]->Int32Value();
     int shader = args[1]->Int32Value();
-    
+
     glAttachShader(program, shader);
-    
+
     return Undefined();
-  }
-
-
-  Handle<Value> BindAttribLocation(const Arguments& args) {
-    HandleScope scope;
-
-    if (!(args.Length() == 1 && args[0]->IsNumber())) {
-      return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected BindAttribLocation(Number)")));
-    }
-
-    return ThrowException(Exception::Error(String::New("BindAttribLocation not implemented in node-webgl")));
   }
 
 
@@ -245,9 +258,9 @@ namespace webgl {
     if (!(args.Length() == 1 && args[0]->IsNumber())) {
       return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected LinkProgram(Number)")));
     }
-    
+
     glLinkProgram(args[0]->Int32Value());
-    
+
     return Undefined();
   }
 
@@ -261,7 +274,7 @@ namespace webgl {
 
     int program = args[0]->Int32Value();
     int pname = args[1]->Int32Value();
-    
+
     int value = 0;
     switch (pname) {
     case GL_DELETE_STATUS:
@@ -286,10 +299,10 @@ namespace webgl {
     if (!(args.Length() == 2 && args[0]->IsNumber() && args[1]->IsString())) {
       return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected GetUniformLocation(Number, String)")));
     }
-    
+
     int program = args[0]->Int32Value();
     String::Utf8Value name(args[1]);
-    
+
     return Number::New(glGetUniformLocation(program, *name));
   }
 
@@ -300,14 +313,14 @@ namespace webgl {
     if (!(args.Length() == 4 && args[0]->IsNumber() && args[1]->IsNumber() && args[2]->IsNumber() && args[3]->IsNumber())) {
       return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected ClearColor(Number, Number, Number, Number)")));
     }
-    
+
     double red = args[0]->NumberValue();
     double green = args[1]->NumberValue();
     double blue = args[2]->NumberValue();
     double alpha = args[3]->NumberValue();
-    
+
     glClearColor(red, green, blue, alpha);
-    
+
     return Undefined();
   }
 
@@ -318,11 +331,11 @@ namespace webgl {
     if (!(args.Length() == 1 && args[0]->IsNumber())) {
       return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected ClearDepth(Number)")));
     }
-    
+
     double depth = args[0]->NumberValue();
-    
+
     glClearDepthf(depth);
-    
+
     return Undefined();
   }
 
@@ -333,7 +346,8 @@ namespace webgl {
       return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected Disable(Number)")));
     }
 
-    return ThrowException(Exception::Error(String::New("Disable not implemented in node-webgl")));
+    glEnable(args[0]->Int32Value());
+    return Undefined();
   }
 
 
@@ -387,7 +401,7 @@ namespace webgl {
     if (!(args.Length() == 1 && args[0]->IsNumber())) {
       return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected Clear(Number)")));
     }
-    
+
     glClear(args[0]->Int32Value());
 
     return Undefined();
@@ -400,9 +414,9 @@ namespace webgl {
     if (!(args.Length() == 1 && args[0]->IsNumber())) {
       return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected UseProgram(Number)")));
     }
-    
+
     glUseProgram(args[0]->Int32Value());
-    
+
     return Undefined();
   }
 
@@ -424,11 +438,10 @@ namespace webgl {
     if (!(args.Length() == 0)) {
       return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected CreateBuffer()")));
     }
-    
-    GLuint buffers[1];
-    glGenBuffers(1, buffers);
-    
-    return Number::New(buffers[0]);
+
+    GLuint buffer;
+    glGenBuffers(1, &buffer);
+    return Number::New(buffer);
   }
 
 
@@ -438,12 +451,12 @@ namespace webgl {
     if (!(args.Length() == 2 && args[0]->IsNumber() && args[1]->IsNumber())) {
       return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected BindBuffer(Number, Number)")));
     }
-    
+
     int target = args[0]->Int32Value();
-    int buffer = args[0]->Int32Value();
-    
+    int buffer = args[1]->Int32Value();
+
     glBindBuffer(target, buffer);
-    
+
     return Undefined();
   }
 
@@ -465,10 +478,12 @@ namespace webgl {
         obj->GetIndexedPropertiesExternalArrayDataType());
     int size = obj->GetIndexedPropertiesExternalArrayDataLength() * element_size;
     void* data = obj->GetIndexedPropertiesExternalArrayData();
-    
+
+
+//    printf("BufferData %d %d %d\n", target, size, usage);
     glBufferData(target, size, data, usage);
 
-    return Undefined(); 
+    return Undefined();
   }
 
 
@@ -489,9 +504,9 @@ namespace webgl {
     if (!(args.Length() == 1 && args[0]->IsNumber())) {
       return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected Enable(Number)")));
     }
-    
+
     glEnable(args[0]->Int32Value());
-    
+
     return Undefined();
   }
 
@@ -524,9 +539,9 @@ namespace webgl {
     if (!(args.Length() == 1 && args[0]->IsNumber())) {
       return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected EnableVertexAttribArray(Number)")));
     }
-    
+
     glEnableVertexAttribArray(args[0]->Int32Value());
-    
+
     return Undefined();
   }
 
@@ -537,7 +552,7 @@ namespace webgl {
     if (!(args.Length() == 6 && args[0]->IsNumber() && args[1]->IsNumber() && args[2]->IsNumber() && args[3]->IsBoolean() && args[4]->IsNumber() && args[5]->IsNumber())) {
       return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected VertexAttribPointer(Number, Number, Number, Boolean, Number, Number)")));
     }
-    
+
     int indx = args[0]->Int32Value();
     int size = args[1]->Int32Value();
     int type = args[2]->Int32Value();
@@ -545,8 +560,9 @@ namespace webgl {
     int stride = args[4]->Int32Value();
     int offset = args[5]->Int32Value();
 
+//    printf("VertexAttribPointer %d %d %d %d %d %d\n", indx, size, type, normalized, stride, offset);
     glVertexAttribPointer(indx, size, type, normalized, stride, (const GLvoid *)offset);
-    
+
     return Undefined();
   }
 
@@ -587,11 +603,12 @@ namespace webgl {
   Handle<Value> Flush(const Arguments& args) {
     HandleScope scope;
 
-    if (!(args.Length() == 1 && args[0]->IsNumber())) {
-      return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected Flush(Number)")));
+    if (!(args.Length() == 0)) {
+      return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected Flush()")));
     }
 
-    return ThrowException(Exception::Error(String::New("Flush not implemented in node-webgl")));
+    glFlush();
+    return Undefined();
   }
 
 
@@ -601,8 +618,8 @@ extern "C" void
 init(Handle<Object> target)
 {
 
-
-
+  NODE_SET_METHOD(target, "bindAttribLocation", webgl::BindAttribLocation);
+  NODE_SET_METHOD(target, "getError", webgl::GetError);
   NODE_SET_METHOD(target, "drawArrays", webgl::DrawArrays);
   NODE_SET_METHOD(target, "uniformMatrix4fv", webgl::UniformMatrix4fv);
 
@@ -616,13 +633,12 @@ init(Handle<Object> target)
   NODE_SET_METHOD(target, "getShaderInfoLog", webgl::GetShaderInfoLog);
   NODE_SET_METHOD(target, "createProgram", webgl::CreateProgram);
   NODE_SET_METHOD(target, "attachShader", webgl::AttachShader);
-  NODE_SET_METHOD(target, "bindAttribLocation", webgl::BindAttribLocation);
   NODE_SET_METHOD(target, "linkProgram", webgl::LinkProgram);
   NODE_SET_METHOD(target, "getProgramParameter", webgl::GetProgramParameter);
   NODE_SET_METHOD(target, "getUniformLocation", webgl::GetUniformLocation);
   NODE_SET_METHOD(target, "clearColor", webgl::ClearColor);
   NODE_SET_METHOD(target, "clearDepth", webgl::ClearDepth);
-  
+
   NODE_SET_METHOD(target, "disable", webgl::Disable);
   NODE_SET_METHOD(target, "createTexture", webgl::CreateTexture);
   NODE_SET_METHOD(target, "bindTexture", webgl::BindTexture);
@@ -644,7 +660,7 @@ init(Handle<Object> target)
   NODE_SET_METHOD(target, "activeTexture", webgl::ActiveTexture);
   NODE_SET_METHOD(target, "drawElements", webgl::DrawElements);
   NODE_SET_METHOD(target, "flush", webgl::Flush);
-  
+
   target->Set(String::New("FRAGMENT_SHADER"), Number::New(GL_FRAGMENT_SHADER));
   target->Set(String::New("VERTEX_SHADER"), Number::New(GL_VERTEX_SHADER));
   target->Set(String::New("COMPILE_STATUS"), Number::New(GL_COMPILE_STATUS));
@@ -664,18 +680,28 @@ init(Handle<Object> target)
   target->Set(String::New("NOTEQUAL"), Number::New(GL_NOTEQUAL));
   target->Set(String::New("GEQUAL"), Number::New(GL_GEQUAL));
   target->Set(String::New("ALWAYS"), Number::New(GL_ALWAYS));
-  
+
   target->Set(String::New("DEPTH_TEST"), Number::New(GL_DEPTH_TEST));
   target->Set(String::New("ARRAY_BUFFER"), Number::New(GL_ARRAY_BUFFER));
   target->Set(String::New("STATIC_DRAW"), Number::New(GL_STATIC_DRAW));
+  target->Set(String::New("STREAM_DRAW"), Number::New(GL_STREAM_DRAW));
+  target->Set(String::New("DYNAMIC_DRAW"), Number::New(GL_DYNAMIC_DRAW));
 
   target->Set(String::New("FLOAT"), Number::New(GL_FLOAT));
   target->Set(String::New("TRIANGLES"), Number::New(GL_TRIANGLES));
   target->Set(String::New("TRIANGLE_STRIP"), Number::New(GL_TRIANGLE_STRIP));
-  
-  
+  target->Set(String::New("COLOR_BUFFER_BIT"), Number::New(GL_COLOR_BUFFER_BIT));
+
+  target->Set(String::New("INVALID_ENUM"), Number::New(GL_INVALID_ENUM));
+  target->Set(String::New("INVALID_VALUE"), Number::New(GL_INVALID_VALUE));
+  target->Set(String::New("INVALID_OPERATION"), Number::New(GL_INVALID_OPERATION));
+//  target->Set(String::New("STACK_OVERFLOW"), Number::New(GL_STACK_OVERFLOW));
+//  target->Set(String::New("STACK_UNDERFLOW"), Number::New(GL_STACK_UNDERFLOW));
+  target->Set(String::New("OUT_OF_MEMORY"), Number::New(GL_OUT_OF_MEMORY));
+//  target->Set(String::New("TABLE_TOO_LARGE"), Number::New(GL_TABLE_TOO_LARGE));
+
   v8_typed_array::AttachBindings(Context::GetCurrent()->Global());
-   
-  
+
+
 }
 
