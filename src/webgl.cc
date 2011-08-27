@@ -10,6 +10,113 @@ using namespace v8;
 namespace webgl {
 
 
+  Handle<Value> Uniform1f(const Arguments& args) {
+    HandleScope scope;
+
+    if (!(args.Length() == 2 && args[0]->IsNumber() && args[1]->IsNumber())) {
+      return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected Uniform1f(Number, Number)")));
+    }
+
+    int location = args[0]->Int32Value();
+    double x = args[1]->NumberValue();
+
+    glUniform1f(location, x);
+    return Undefined();
+  }
+
+  Handle<Value> Uniform2f(const Arguments& args) {
+    HandleScope scope;
+
+    if (!(args.Length() == 3 && args[0]->IsNumber() && args[1]->IsNumber() && args[2]->IsNumber())) {
+      return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected Uniform2f(Number, Number, Number)")));
+    }
+
+    int location = args[0]->Int32Value();
+    double x = args[1]->NumberValue();
+    double y = args[2]->NumberValue();
+
+    glUniform2f(location, x, y);
+    return Undefined();
+  }
+
+  Handle<Value> Uniform4f(const Arguments& args) {
+    HandleScope scope;
+
+    if (!(args.Length() == 5 && args[0]->IsNumber() && args[1]->IsNumber() && args[2]->IsNumber() && args[3]->IsNumber() && args[4]->IsNumber())) {
+      return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected Uniform4f(Number, Number, Number, Number, Number)")));
+    }
+
+    int location = args[0]->Int32Value();
+    double x = args[1]->NumberValue();
+    double y = args[2]->NumberValue();
+    double z = args[3]->NumberValue();
+    double w = args[4]->NumberValue();
+
+    glUniform4f(location, x, y, z, w);
+    return Undefined();
+  }
+
+  Handle<Value> Uniform1i(const Arguments& args) {
+    HandleScope scope;
+
+    if (!(args.Length() == 2 && args[0]->IsNumber() && args[1]->IsNumber())) {
+      return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected Uniform1i(Number, Number)")));
+    }
+
+    int location = args[0]->Int32Value();
+    int x = args[1]->Int32Value();
+
+    glUniform1i(location, x);
+    return Undefined();
+  }
+
+  Handle<Value> Uniform2i(const Arguments& args) {
+    HandleScope scope;
+
+    if (!(args.Length() == 3 && args[0]->IsNumber() && args[1]->IsNumber() && args[2]->IsNumber())) {
+      return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected Uniform2i(Number, Number, Number)")));
+    }
+
+    int location = args[0]->Int32Value();
+    int x = args[1]->Int32Value();
+    int y = args[2]->Int32Value();
+
+    glUniform2i(location, x, y);
+    return Undefined();
+  }
+
+  Handle<Value> Uniform4i(const Arguments& args) {
+    HandleScope scope;
+
+    if (!(args.Length() == 5 && args[0]->IsNumber() && args[1]->IsNumber() && args[2]->IsNumber() && args[3]->IsNumber() && args[4]->IsNumber())) {
+      return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected Uniform4i(Number, Number, Number, Number, Number)")));
+    }
+
+    int location = args[0]->Int32Value();
+    int x = args[1]->Int32Value();
+    int y = args[2]->Int32Value();
+    int z = args[3]->Int32Value();
+    int w = args[4]->Int32Value();
+
+    glUniform4i(location, x, y, z, w);
+    return Undefined();
+  }
+
+
+  Handle<Value> PixelStorei(const Arguments& args) {
+    HandleScope scope;
+
+    if (!(args.Length() == 2 && args[0]->IsNumber() && args[1]->IsNumber())) {
+      return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected PixelStorei(Number, Number)")));
+    }
+
+    int pname = args[0]->Int32Value();
+    int param = args[1]->Int32Value();
+
+    glPixelStorei(pname,param);
+
+    return Undefined();
+  }
 
   Handle<Value> BindAttribLocation(const Arguments& args) {
     HandleScope scope;
@@ -354,44 +461,75 @@ namespace webgl {
   Handle<Value> CreateTexture(const Arguments& args) {
     HandleScope scope;
 
-    if (!(args.Length() == 1 && args[0]->IsNumber())) {
-      return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected CreateTexture(Number)")));
+    if (!(args.Length() == 0)) {
+      return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected CreateTexture()")));
     }
 
-    return ThrowException(Exception::Error(String::New("CreateTexture not implemented in node-webgl")));
+    GLuint texture;
+    glGenTextures(1, &texture);
+    return Number::New(texture);
   }
 
 
   Handle<Value> BindTexture(const Arguments& args) {
     HandleScope scope;
 
-    if (!(args.Length() == 1 && args[0]->IsNumber())) {
-      return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected BindTexture(Number)")));
+    if (!(args.Length() == 2 && args[0]->IsNumber() && args[1]->IsNumber())) {
+      return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected BindTexture(Number, Number)")));
     }
 
-    return ThrowException(Exception::Error(String::New("BindTexture not implemented in node-webgl")));
+    int target = args[0]->Int32Value();
+    int texture = args[1]->Int32Value();
+
+    glBindTexture(target, texture);
+    return Undefined();
   }
 
 
   Handle<Value> TexImage2D(const Arguments& args) {
     HandleScope scope;
 
-    if (!(args.Length() == 1 && args[0]->IsNumber())) {
-      return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected TexImage2D(Number)")));
+    if (!(args.Length() == 9 && args[0]->IsNumber() && args[1]->IsNumber() && args[2]->IsNumber()
+                             && args[3]->IsNumber() && args[4]->IsNumber() && args[5]->IsNumber()
+                             && args[6]->IsNumber() && args[7]->IsNumber() && args[8]->IsObject() )) {
+      return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected TexImage2D(Number, Number, Number, Number, Number, Number, Number, Number, Object)... others are not implemented yet")));
     }
 
-    return ThrowException(Exception::Error(String::New("TexImage2D not implemented in node-webgl")));
+    int target = args[0]->Int32Value();
+    int level = args[1]->Int32Value();
+    int internalformat = args[2]->Int32Value();
+    int width = args[3]->Int32Value();
+    int height = args[4]->Int32Value();
+    int border = args[5]->Int32Value();
+    int format = args[6]->Int32Value();
+    int type = args[7]->Int32Value();
+    Local<Object> obj = Local<Object>::Cast(args[8]);
+
+    if (!obj->HasIndexedPropertiesInExternalArrayData()) {
+      return ThrowException(Exception::TypeError(String::New("Data must be an ArrayBuffer.")));
+    }
+    void* pixels = obj->GetIndexedPropertiesExternalArrayData();
+
+    glTexImage2D(target, level, internalformat, width, height, border, format, type, pixels);
+
+    return Undefined();
   }
 
 
   Handle<Value> TexParameteri(const Arguments& args) {
     HandleScope scope;
 
-    if (!(args.Length() == 1 && args[0]->IsNumber())) {
-      return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected TexParameteri(Number)")));
+    if (!(args.Length() == 3 && args[0]->IsNumber() && args[1]->IsNumber() && args[2]->IsNumber())) {
+      return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected TexParameteri(Number, Number, Number)")));
     }
 
-    return ThrowException(Exception::Error(String::New("TexParameteri not implemented in node-webgl")));
+    int target = args[0]->Int32Value();
+    int pname = args[1]->Int32Value();
+    int param = args[2]->Int32Value();
+
+    glTexParameteri(target, pname, param);
+
+    return Undefined();
   }
 
 
@@ -421,17 +559,6 @@ namespace webgl {
   }
 
 
-  Handle<Value> Uniform4f(const Arguments& args) {
-    HandleScope scope;
-
-    if (!(args.Length() == 1 && args[0]->IsNumber())) {
-      return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected Uniform4f(Number)")));
-    }
-
-    return ThrowException(Exception::Error(String::New("Uniform4f not implemented in node-webgl")));
-  }
-
-
   Handle<Value> CreateBuffer(const Arguments& args) {
     HandleScope scope;
 
@@ -456,6 +583,54 @@ namespace webgl {
     int buffer = args[1]->Int32Value();
 
     glBindBuffer(target, buffer);
+
+    return Undefined();
+  }
+
+
+  Handle<Value> CreateFramebuffer(const Arguments& args) {
+    HandleScope scope;
+
+    if (!(args.Length() == 0)) {
+      return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected CreateFramebuffer()")));
+    }
+
+    GLuint buffer;
+    glGenFramebuffers(1, &buffer);
+    return Number::New(buffer);
+  }
+
+
+  Handle<Value> BindFramebuffer(const Arguments& args) {
+    HandleScope scope;
+
+    if (!(args.Length() == 2 && args[0]->IsNumber() && (args[1]->IsNumber() || args[1]->IsNull()))) {
+      return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected BindFramebuffer(Number, Number)")));
+    }
+
+    int target = args[0]->Int32Value();
+    int buffer = args[1]->Int32Value();
+
+    glBindFramebuffer(target, buffer);
+
+    return Undefined();
+  }
+
+
+  Handle<Value> FramebufferTexture2D(const Arguments& args) {
+    HandleScope scope;
+
+    if (!(args.Length() == 5 && args[0]->IsNumber() && args[1]->IsNumber() && args[2]->IsNumber() && args[3]->IsNumber() && args[4]->IsNumber())) {
+      return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected FramebufferTexture2D(Number, Number, Number, Number, Number)")));
+    }
+
+    int target = args[0]->Int32Value();
+    int attachment = args[1]->Int32Value();
+    int textarget = args[2]->Int32Value();
+    int texture = args[3]->Int32Value();
+    int level = args[4]->Int32Value();
+
+    glFramebufferTexture2D(target, attachment, textarget, texture, level);
 
     return Undefined();
   }
@@ -490,11 +665,25 @@ namespace webgl {
   Handle<Value> BufferSubData(const Arguments& args) {
     HandleScope scope;
 
-    if (!(args.Length() == 1 && args[0]->IsNumber())) {
-      return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected BufferSubData(Number)")));
+    if (!(args.Length() == 3 && args[0]->IsNumber() && args[1]->IsNumber() && args[2]->IsObject())) {
+      return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected BufferSubData(Number, Number, Object)")));
     }
 
-    return ThrowException(Exception::Error(String::New("BufferSubData not implemented in node-webgl")));
+    int target = args[0]->Int32Value();
+    int offset = args[1]->Int32Value();
+    Local<Object> obj = Local<Object>::Cast(args[2]);
+
+    if (!obj->HasIndexedPropertiesInExternalArrayData()) {
+      return ThrowException(Exception::TypeError(String::New("Data must be an ArrayBuffer.")));
+    }
+    int element_size = v8_typed_array::SizeOfArrayElementForType(
+        obj->GetIndexedPropertiesExternalArrayDataType());
+    int size = obj->GetIndexedPropertiesExternalArrayDataLength() * element_size;
+    void* data = obj->GetIndexedPropertiesExternalArrayData();
+
+    glBufferSubData(target, offset, size, data);
+
+    return Undefined();
   }
 
 
@@ -567,17 +756,6 @@ namespace webgl {
   }
 
 
-  Handle<Value> Uniform1i(const Arguments& args) {
-    HandleScope scope;
-
-    if (!(args.Length() == 1 && args[0]->IsNumber())) {
-      return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected Uniform1i(Number)")));
-    }
-
-    return ThrowException(Exception::Error(String::New("Uniform1i not implemented in node-webgl")));
-  }
-
-
   Handle<Value> ActiveTexture(const Arguments& args) {
     HandleScope scope;
 
@@ -585,7 +763,8 @@ namespace webgl {
       return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected ActiveTexture(Number)")));
     }
 
-    return ThrowException(Exception::Error(String::New("ActiveTexture not implemented in node-webgl")));
+    glActiveTexture(args[0]->Int32Value());
+    return Undefined();
   }
 
 
@@ -618,6 +797,13 @@ extern "C" void
 init(Handle<Object> target)
 {
 
+  NODE_SET_METHOD(target, "uniform1f", webgl::Uniform1f);
+  NODE_SET_METHOD(target, "uniform2f", webgl::Uniform2f);
+  NODE_SET_METHOD(target, "uniform4f", webgl::Uniform4f);
+  NODE_SET_METHOD(target, "uniform1i", webgl::Uniform1i);
+  NODE_SET_METHOD(target, "uniform2i", webgl::Uniform2i);
+  NODE_SET_METHOD(target, "uniform4i", webgl::Uniform4i);
+  NODE_SET_METHOD(target, "pixelStorei", webgl::PixelStorei);
   NODE_SET_METHOD(target, "bindAttribLocation", webgl::BindAttribLocation);
   NODE_SET_METHOD(target, "getError", webgl::GetError);
   NODE_SET_METHOD(target, "drawArrays", webgl::DrawArrays);
@@ -646,7 +832,9 @@ init(Handle<Object> target)
   NODE_SET_METHOD(target, "texParameteri", webgl::TexParameteri);
   NODE_SET_METHOD(target, "clear", webgl::Clear);
   NODE_SET_METHOD(target, "useProgram", webgl::UseProgram);
-  NODE_SET_METHOD(target, "uniform4f", webgl::Uniform4f);
+  NODE_SET_METHOD(target, "createFramebuffer", webgl::CreateFramebuffer);
+  NODE_SET_METHOD(target, "bindFramebuffer", webgl::BindFramebuffer);
+  NODE_SET_METHOD(target, "framebufferTexture2D", webgl::FramebufferTexture2D);
   NODE_SET_METHOD(target, "createBuffer", webgl::CreateBuffer);
   NODE_SET_METHOD(target, "bindBuffer", webgl::BindBuffer);
   NODE_SET_METHOD(target, "bufferData", webgl::BufferData);
@@ -656,7 +844,6 @@ init(Handle<Object> target)
   NODE_SET_METHOD(target, "blendFunc", webgl::BlendFunc);
   NODE_SET_METHOD(target, "enableVertexAttribArray", webgl::EnableVertexAttribArray);
   NODE_SET_METHOD(target, "vertexAttribPointer", webgl::VertexAttribPointer);
-  NODE_SET_METHOD(target, "uniform1i", webgl::Uniform1i);
   NODE_SET_METHOD(target, "activeTexture", webgl::ActiveTexture);
   NODE_SET_METHOD(target, "drawElements", webgl::DrawElements);
   NODE_SET_METHOD(target, "flush", webgl::Flush);
@@ -688,9 +875,25 @@ init(Handle<Object> target)
   target->Set(String::New("DYNAMIC_DRAW"), Number::New(GL_DYNAMIC_DRAW));
 
   target->Set(String::New("FLOAT"), Number::New(GL_FLOAT));
+  target->Set(String::New("UNSIGNED_BYTE"), Number::New(GL_UNSIGNED_BYTE));
+  target->Set(String::New("FALSE"), Boolean::New(GL_FALSE));
   target->Set(String::New("TRIANGLES"), Number::New(GL_TRIANGLES));
   target->Set(String::New("TRIANGLE_STRIP"), Number::New(GL_TRIANGLE_STRIP));
   target->Set(String::New("COLOR_BUFFER_BIT"), Number::New(GL_COLOR_BUFFER_BIT));
+
+  target->Set(String::New("TEXTURE_2D"), Number::New(GL_TEXTURE_2D));
+  target->Set(String::New("TEXTURE0"), Number::New(GL_TEXTURE0));
+  target->Set(String::New("TEXTURE1"), Number::New(GL_TEXTURE1));
+  target->Set(String::New("TEXTURE2"), Number::New(GL_TEXTURE2));
+  target->Set(String::New("TEXTURE3"), Number::New(GL_TEXTURE3));
+  target->Set(String::New("TEXTURE4"), Number::New(GL_TEXTURE4));
+  target->Set(String::New("TEXTURE_MIN_FILTER"), Number::New(GL_TEXTURE_MIN_FILTER));
+  target->Set(String::New("TEXTURE_MAG_FILTER"), Number::New(GL_TEXTURE_MAG_FILTER));
+  target->Set(String::New("LINEAR"), Number::New(GL_LINEAR));
+  target->Set(String::New("NEAREST"), Number::New(GL_NEAREST));
+
+  target->Set(String::New("FRAMEBUFFER"), Number::New(GL_FRAMEBUFFER));
+  target->Set(String::New("COLOR_ATTACHMENT0"), Number::New(GL_COLOR_ATTACHMENT0));
 
   target->Set(String::New("INVALID_ENUM"), Number::New(GL_INVALID_ENUM));
   target->Set(String::New("INVALID_VALUE"), Number::New(GL_INVALID_VALUE));
@@ -699,6 +902,12 @@ init(Handle<Object> target)
 //  target->Set(String::New("STACK_UNDERFLOW"), Number::New(GL_STACK_UNDERFLOW));
   target->Set(String::New("OUT_OF_MEMORY"), Number::New(GL_OUT_OF_MEMORY));
 //  target->Set(String::New("TABLE_TOO_LARGE"), Number::New(GL_TABLE_TOO_LARGE));
+
+
+  target->Set(String::New("UNPACK_ALIGNMENT"), Number::New(GL_UNPACK_ALIGNMENT));
+  target->Set(String::New("RGBA"), Number::New(GL_RGBA));
+
+
 
   v8_typed_array::AttachBindings(Context::GetCurrent()->Global());
 
