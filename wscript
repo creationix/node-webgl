@@ -1,0 +1,20 @@
+from os import popen
+
+srcdir = '.'
+blddir = 'build'
+VERSION = '0.0.0'
+
+def set_options(opt):
+  opt.tool_options('compiler_cxx')
+
+def configure(conf):
+  conf.check_tool('compiler_cxx')
+  conf.check_tool('node_addon')
+
+def build(bld):
+  obj = bld.new_task_gen('cxx', 'shlib', 'node_addon')
+  obj.target = "node-webgl"
+  obj.cxxflags = ["-pthread", "-Wall"]
+  obj.linkflags = ["-lGLESv2"]
+  obj.source = ["src/webgl.cc", "src/v8_typed_array.cc"]
+  # obj.uselib = "SDL"
