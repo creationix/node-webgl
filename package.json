@@ -2,7 +2,7 @@
   "author": "Tim Caswell <tim@creationix.com> (http://creationix.com/)",
   "name": "webgl",
   "description": "webGL bindings for node",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "main": "build/default/node-webgl.node",
   "engines": {
     "node": ">=0.4.0"
