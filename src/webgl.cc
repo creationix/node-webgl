@@ -453,6 +453,17 @@ namespace webgl {
       return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected Disable(Number)")));
     }
 
+    glDisable(args[0]->Int32Value());
+    return Undefined();
+  }
+
+  Handle<Value> Enable(const Arguments& args) {
+    HandleScope scope;
+
+    if (!(args.Length() == 1 && args[0]->IsNumber())) {
+      return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected Enable(Number)")));
+    }
+
     glEnable(args[0]->Int32Value());
     return Undefined();
   }
@@ -687,19 +698,6 @@ namespace webgl {
   }
 
 
-  Handle<Value> Enable(const Arguments& args) {
-    HandleScope scope;
-
-    if (!(args.Length() == 1 && args[0]->IsNumber())) {
-      return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected Enable(Number)")));
-    }
-
-    glEnable(args[0]->Int32Value());
-
-    return Undefined();
-  }
-
-
   Handle<Value> BlendEquation(const Arguments& args) {
     HandleScope scope;
 
@@ -771,11 +769,16 @@ namespace webgl {
   Handle<Value> DrawElements(const Arguments& args) {
     HandleScope scope;
 
-    if (!(args.Length() == 1 && args[0]->IsNumber())) {
-      return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected DrawElements(Number)")));
+    if (!(args.Length() == 4 && args[0]->IsNumber() && args[1]->IsNumber() && args[2]->IsNumber() && args[3]->IsNumber())) {
+      return ThrowException(Exception::TypeError(String::New("Invalid arguments: Expected DrawElements(Number, Number, Number, Number)")));
     }
 
-    return ThrowException(Exception::Error(String::New("DrawElements not implemented in node-webgl")));
+    int mode = args[0]->Int32Value();
+    int count = args[1]->Int32Value();
+    int type = args[2]->Int32Value();
+    int offset = args[3]->Int32Value();
+    glDrawElements(mode, count, type, (const GLvoid*)offset);
+    return Undefined();
   }
 
 
@@ -857,6 +860,7 @@ init(Handle<Object> target)
   target->Set(String::New("ATTACHED_SHADERS"), Number::New(GL_ATTACHED_SHADERS));
   target->Set(String::New("ACTIVE_ATTRIBUTES"), Number::New(GL_ACTIVE_ATTRIBUTES));
   target->Set(String::New("ACTIVE_UNIFORMS"), Number::New(GL_ACTIVE_UNIFORMS));
+  target->Set(String::New("ELEMENT_ARRAY_BUFFER"), Number::New(GL_ELEMENT_ARRAY_BUFFER));
 
 
   target->Set(String::New("NEVER"), Number::New(GL_NEVER));
@@ -876,10 +880,12 @@ init(Handle<Object> target)
 
   target->Set(String::New("FLOAT"), Number::New(GL_FLOAT));
   target->Set(String::New("UNSIGNED_BYTE"), Number::New(GL_UNSIGNED_BYTE));
+  target->Set(String::New("UNSIGNED_SHORT"), Number::New(GL_UNSIGNED_SHORT));
   target->Set(String::New("FALSE"), Boolean::New(GL_FALSE));
   target->Set(String::New("TRIANGLES"), Number::New(GL_TRIANGLES));
   target->Set(String::New("TRIANGLE_STRIP"), Number::New(GL_TRIANGLE_STRIP));
   target->Set(String::New("COLOR_BUFFER_BIT"), Number::New(GL_COLOR_BUFFER_BIT));
+  target->Set(String::New("DEPTH_BUFFER_BIT"), Number::New(GL_DEPTH_BUFFER_BIT));
 
   target->Set(String::New("TEXTURE_2D"), Number::New(GL_TEXTURE_2D));
   target->Set(String::New("TEXTURE0"), Number::New(GL_TEXTURE0));
