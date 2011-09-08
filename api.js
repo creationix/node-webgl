@@ -238,8 +238,8 @@ forEach({
       sig.push(type.name);
       fullArgs.push(type.name + " " + arg);
       if (type.name.substr(0, 5) === "WebGL") {
-        cargs.push(arg + "._");
-        check.push(arg + " instanceof " + type.name);
+        cargs.push(arg + " ? " + arg + "._ : 0");
+        check.push("(" + arg + " === null || " + arg + " instanceof " + type.name + ")");
       } else {
         cargs.push(arg);
         check.push("typeof " + arg + ' === "object"');
