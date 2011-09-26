@@ -1,4 +1,5 @@
 from os import popen
+import sys
 
 srcdir = '.'
 blddir = 'build'
@@ -11,10 +12,17 @@ def configure(conf):
   conf.check_tool('compiler_cxx')
   conf.check_tool('node_addon')
 
+
 def build(bld):
   obj = bld.new_task_gen('cxx', 'shlib', 'node_addon')
   obj.target = "node-webgl"
   obj.cxxflags = ["-pthread", "-Wall"]
-  obj.linkflags = ["-lGLESv2"]
+
+  if sys.platform.startswith('darwin'):
+    obj.uselib = ["GL", "GLU", "GLUT"]
+    obj.framework = ['OpenGL','GLUT','Cocoa']
+  else:
+    obj.linkflags = ["-lGLESv2"]
+
   obj.source = ["src/webgl.cc", "src/v8_typed_array.cc"]
   # obj.uselib = "SDL"
