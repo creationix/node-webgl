@@ -3,7 +3,7 @@
 
 #include "v8_typed_array.h"
 
-#include <GLES2/gl2.h>
+#include "arch_wrapper.h"
 
 using namespace v8;
 
@@ -708,7 +708,7 @@ init(Handle<Object> target)
   target->Set(String::New("UNPACK_ALIGNMENT"), Number::New(GL_UNPACK_ALIGNMENT));
   target->Set(String::New("RGBA"), Number::New(GL_RGBA));
 
-  
+
 
   v8_typed_array::AttachBindings(Context::GetCurrent()->Global());
 
